@@ -1,0 +1,5 @@
+// D-26 / D-24: use rustup's rust-analyzer (~/.cargo/bin, on the GUI PATH) instead of the package's downloaded
+// release. Check command stays stock ("check") — DECIDED (Q-21).
+{
+	"server_path": "rust-analyzer",
+}

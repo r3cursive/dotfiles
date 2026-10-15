@@ -1,0 +1,9 @@
+// LSP-gopls — DECIDED (Q-40): use the shared, pinned gopls from `go install golang.org/x/tools/gopls@<pin>`
+// in ~/go/bin instead of the package-managed copy. With manageGoplsBinary false the plugin never installs or
+// upgrades gopls (plugin.py), so `gopls` on the GUI PATH (~/go/bin via the Plasma env file) is a hard dependency.
+{
+	"command": ["gopls"],
+	"settings": {
+		"manageGoplsBinary": false,
+	},
+}

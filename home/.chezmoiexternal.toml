@@ -1,0 +1,40 @@
+# Managed by chezmoi (~/dev/bootstrap) — Track A shell/fonts (docs/plans/10-shell.md).
+# Every download is pinned to an immutable release URL and verified with SHA-256 by chezmoi
+# before anything is written. Bumping = change url + checksum together (see 10-shell.md "Updating pins").
+
+# --- antidote (zsh plugin manager) — D-10 ------------------------------------------------
+# v2.3.0 = latest release (2026-08-07), tag commit 9bb69ab99c6f05d6e6ae237f7ce222eeeb5b4a14.
+# Checksum computed locally from the GitHub tag tarball (antidote publishes no checksum file).
+[".local/share/antidote"]
+    type = "archive"
+    url = "https://github.com/mattmc3/antidote/archive/refs/tags/v2.3.0.tar.gz"
+    checksum.sha256 = "c8b4f85d01c8c8715f279a8fed075a1e03e755e914bf1fd98688f24156fc110e"
+    stripComponents = 1
+    exact = true
+
+# --- Maple Mono NF v7.9 (unhinted) — D-14 / "Your answers" -------------------------------
+# Latest stable (2025-12-05; v8.0 is still beta). Upstream publishes MapleMono-NF-unhinted.sha256;
+# value below matches it and the GitHub asset digest.
+[".local/share/fonts/MapleMono-NF"]
+    type = "archive"
+    url = "https://github.com/subframe7536/maple-font/releases/download/v7.9/MapleMono-NF-unhinted.zip"
+    checksum.sha256 = "8248d6260660be1066b5ebe90d25131582df8383f38db1c284dd1f2dc9d2b46e"
+    exact = true
+    include = ["*.ttf", "LICENSE.txt"]
+
+# --- Nerd Fonts v3.5.1 Symbols Only (fallback glyphs for non-NF fonts) — D-14 ------------
+# Checksum from the release's SHA-256.txt.
+[".local/share/fonts/NerdFontsSymbolsOnly"]
+    type = "archive"
+    url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/NerdFontsSymbolsOnly.tar.xz"
+    checksum.sha256 = "01172f37db8543edb102e5cb5c64101c9f4686630804d49b419aa07b23a69996"
+    exact = true
+    include = ["*.ttf", "LICENSE"]
+
+# Upstream fontconfig snippet that maps ~400 popular (non-NF) monospace families to
+# "Symbols Nerd Font" for icon fallback. Same tarball, same checksum.
+[".config/fontconfig/conf.d/10-nerd-font-symbols.conf"]
+    type = "archive-file"
+    url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/NerdFontsSymbolsOnly.tar.xz"
+    checksum.sha256 = "01172f37db8543edb102e5cb5c64101c9f4686630804d49b419aa07b23a69996"
+    path = "10-nerd-font-symbols.conf"

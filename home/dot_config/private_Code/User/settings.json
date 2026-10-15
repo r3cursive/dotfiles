@@ -1,0 +1,39 @@
+// VS Code user settings — Track D v3 (docs/plans/40-editors.md). Checked against VS Code 1.141.0 and the
+// extensions' package.json (versions in the plan). All values are DECIDED (editors baseline + user answers,
+// 2026-10-10); everything else is stock. VS Code rewrites this file when you change settings in the UI:
+// check `chezmoi diff` afterwards.
+//
+// Deliberately not set, so app defaults apply (DECIDED 2026-10-10): telemetry.telemetryLevel (all),
+// chat.disableAIFeatures (AI on), security.workspace.trust.* (on), editor.formatOnSave (false), no vim extension.
+// ruff: charliermarsh.ruff stock resolution = venv ruff → `ruff` on PATH (Fedora) → bundled (bundled always in
+// untrusted workspaces). gopls: golang.go finds ~/go/bin/gopls via GOPATH. Neither needs a setting.
+{
+  // DECIDED (colors FINAL, 2026-10-10; 25-colors §11 Q-25.12): VS Code = Catppuccin Macchiato.
+  // Exact label from Catppuccin.catppuccin-vsc 3.19.0 package.json contributes.themes.
+  "workbench.colorTheme": "Catppuccin Macchiato",
+
+  // DECIDED (D-14 / "Your answers"): Maple Mono NF, size 11 (Q-41). The integrated terminal inherits the
+  // family when unset; its size stays stock (terminal.integrated.fontSize 14).
+  "editor.fontFamily": "'Maple Mono NF'",
+  "editor.fontSize": 11,
+
+  // DECIDED (Q-26): extension auto-update on (stock "on"), but wait 72 h after a release (stock 12) so bad
+  // releases can be pulled first. extensions.autoUpdateDelay exists since 1.125 (extensions.contribution.ts).
+  "extensions.autoUpdate": "on",
+  "extensions.autoUpdateDelay": 72,
+
+  // D-27: basedpyright provides Python language features, not Pylance/Jedi. Contributed by ms-python.python
+  // (now installed, Q-22); detachhead.basedpyright also sets it as a configurationDefault.
+  "python.languageServer": "None",
+
+  // DECIDED (Q-5): basedpyright typeCheckingMode "standard" (extension default "recommended").
+  // basedpyright.importStrategy stays stock "fromEnvironment" (works with ms-python.python, Q-22).
+  "basedpyright.analysis.typeCheckingMode": "standard",
+
+  // DECIDED (Q-24): rustup's rust-analyzer (same binary as Neovim/Zed/Sublime). The extension expands "~/".
+  // Check command stays stock "check" (Q-21).
+  "rust-analyzer.server.path": "~/.cargo/bin/rust-analyzer"
+
+  // DECIDED (2026-10-10): format on save = each app's STOCK behavior (golang.go formats + organizes
+  // imports on save for Go by default; not overridden).
+}

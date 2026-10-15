@@ -1,0 +1,5 @@
+// D-26 + DECIDED (Q-4): use Fedora's ruff (/usr/bin/ruff, on PATH) instead of the package's uv-managed copy.
+// Hard dependency: `ruff` must be on the GUI PATH (system package `ruff`).
+{
+	"server_path": "ruff",
+}

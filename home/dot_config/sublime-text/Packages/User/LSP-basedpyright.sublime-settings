@@ -1,0 +1,9 @@
+// LSP-basedpyright (sublimelsp/LSP-basedpyright, ST >= 4148) — DECIDED (Q-30), replaces LSP-pyright.
+// Server binary stays stock (server_path "auto": the package installs basedpyright and runs it with node,
+// via lsp_utils' node runtime). basedpyright.importStrategy stays stock "fromEnvironment".
+{
+	"settings": {
+		// DECIDED (Q-5): "standard" in every editor (package default "recommended").
+		"basedpyright.analysis.typeCheckingMode": "standard",
+	},
+}

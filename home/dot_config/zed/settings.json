@@ -1,0 +1,97 @@
+// Zed settings — Track D v3 (docs/plans/40-editors.md). Every key was checked against zed-industries/zed v1.23.2
+// (assets/settings/default.json, crates/settings_content, crates/languages/src/python.rs, docs). All values are
+// DECIDED (editors baseline + user answers, 2026-10-10); anything not listed is Zed's stock default.
+//
+// Zed rewrites this file when you use the theme/model pickers: check `chezmoi diff` afterwards.
+//
+// Deliberately not set, so app defaults apply (DECIDED 2026-10-10):
+//   telemetry (diagnostics + metrics on), auto_update (on), edit_predictions / disable_ai (AI features on),
+//   agent tool permissions (confirm each action). No keymap.json (stock bindings).
+{
+  // DECIDED (2026-10-10): no vim keybindings in GUI editors (overrides D-28's vim_mode). false is also the stock
+  // default; stated so a picker or import cannot silently turn it on.
+  "vim_mode": false,
+
+  // DECIDED (colors FINAL, 2026-10-10; 25-colors §11 Q-25.11): Zed = Rosé Pine.
+  // Exact theme name "Rosé Pine" (precomposed U+00E9) from rose-pine/zed themes/rose-pine.json.
+  "theme": "Rosé Pine",
+
+  // Extension ids = keys in zed-industries/extensions extensions.toml (checked 2026-10-10).
+  "auto_install_extensions": {
+    "rose-pine-theme": true, // DECIDED (colors FINAL): theme, v2.0.0
+    "marksman": true, // DECIDED (Q-12): Markdown LSP, v1.0.0 (vitallium/zed-marksman)
+    "toml": true, // DECIDED (Q-12): TOML, v1.0.3
+    "dockerfile": true, // DECIDED (Q-12): Dockerfile, v0.3.0
+    "docker-compose": true // DECIDED (Q-12): Docker Compose LSP, v0.1.0
+  },
+
+  // DECIDED (D-14 / "Your answers"): Maple Mono NF; size 11 (Q-41). UI font stays stock.
+  "buffer_font_family": "Maple Mono NF",
+  "buffer_font_size": 11,
+
+  // DECIDED (2026-10-10): format on save = each app's STOCK behavior (Zed formats Go, Rust and 10 other
+  // languages on save by default; nothing overridden here).
+  "languages": {
+    // D-28: basedpyright + ruff. Equals Zed's built-in default since v0.204; stated so it survives default
+    // changes. Zed uses the project venv's ruff, then `ruff` on PATH (Fedora ruff), and only downloads one if
+    // neither exists (crates/languages/src/python.rs @ v1.23.2).
+    "Python": {
+      "language_servers": ["basedpyright", "ruff", "!ty", "!pyrefly", "!pyright", "!pylsp", "..."]
+    }
+  },
+
+  "lsp": {
+    // D-28: clippy in Zed (the "cargo check" answer, Q-6/Q-21, covers Neovim, VS Code and Sublime).
+    // rust-analyzer from rustup on PATH is used if `rust-analyzer --help` works.
+    "rust-analyzer": {
+      "initialization_options": {
+        "check": { "command": "clippy" }
+      }
+    },
+    // DECIDED (Q-5): typeCheckingMode "standard". Zed already injects "standard" when unset (python.rs);
+    // stated so it survives default changes. Nested form per docs/src/languages/python.md.
+    "basedpyright": {
+      "settings": {
+        "basedpyright": {
+          "analysis": {
+            "typeCheckingMode": "standard"
+          }
+        }
+      }
+    }
+    // gopls: Zed uses `gopls` on PATH (~/go/bin, DECIDED Q-40) before `go install`ing its own.
+  },
+
+  // Local model endpoints only; never API keys in this file.
+  "language_models": {
+    // D-28 / D-42: local Ollama. Zed's default is http://localhost:11434; 127.0.0.1 matches OLLAMA_HOST (D-38).
+    "ollama": {
+      "api_url": "http://127.0.0.1:11434"
+    },
+    // DECIDED (Q-13): LM Studio. Zed's default api_url is http://localhost:1234/api/v0 (LmStudioSettingsContent).
+    "lmstudio": {
+      "api_url": "http://127.0.0.1:1234/api/v0"
+    },
+    // D-3A: LAN OpenAI-compatible endpoint. Key comes from the environment (Q-AI-14), never this file.
+    "openai_compatible": {
+      "tiiny": {
+        "api_url": "http://lan-host.lan/v1",
+        "available_models": [
+          // Empty until a model is loaded on the Tiiny. Then one entry per id from GET /v1/models, e.g.
+          // { "name": "<id>", "display_name": "Tiiny <id>", "max_tokens": 32768 }
+        ]
+      },
+      // 55-mac-mini-inference: OpenAI-compatible endpoint on the tailnet. Ids from GET /api/v0/models 2026-10-14;
+      // unloaded ones JIT-load on first use.
+      "macmini": {
+        "api_url": "https://host.your-tailnet.ts.net/v1",
+        "available_models": [
+          { "name": "qwen3.6-35b-a3b-mlx", "display_name": "Mac mini Qwen3.6 35B-A3B 4-bit", "max_tokens": 131072, "capabilities": { "tools": true, "images": false, "parallel_tool_calls": false, "prompt_cache_key": false } },
+          { "name": "qwen3.6-35b-a3b-claude-4.7-opus-mlx", "display_name": "Mac mini Qwen3.6 35B-A3B opus-distill 8-bit", "max_tokens": 131072, "capabilities": { "tools": true, "images": false, "parallel_tool_calls": false, "prompt_cache_key": false } },
+          { "name": "qwen3.8-27b-mlx", "display_name": "Mac mini Qwen3.8 27B 8-bit", "max_tokens": 98304, "capabilities": { "tools": true, "images": false, "parallel_tool_calls": false, "prompt_cache_key": false } },
+          { "name": "qwen3-4b", "display_name": "Mac mini Qwen3 4B (fast)", "max_tokens": 32768, "capabilities": { "tools": true, "images": false, "parallel_tool_calls": false, "prompt_cache_key": false } }
+        ]
+      }
+    }
+  }
+}

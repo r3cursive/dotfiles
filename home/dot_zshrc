@@ -1,0 +1,196 @@
+# Managed by chezmoi (~/dev/bootstrap) — D-10..D-15, D-24, D-40, D-42. Plan: docs/plans/10-shell.md (v3).
+# Every behaviour here is DECIDED (decisions.md + 10-shell.md "User answers (after v2)").
+# Anything not mentioned is the tool's stock default.
+# Guards use `if …; fi`, never `cond && cmd`: a false last condition would make `zsh -i -c exit` exit 1.
+
+# --- 1. powerlevel10k instant prompt (D-13) — must stay at the top --------------------------
+# Anything that may print or read input must go ABOVE this block.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# --- 2. shell behaviour ---------------------------------------------------------------------
+# Q-4 DECIDED: no extra shell options. (Glob options in §3b and history options below are
+# separate decisions.)
+# Q-5 DECIDED: vi keymap, stock KEYTIMEOUT (0.4 s). zsh would already pick vi because
+# EDITOR=nvim; `bindkey -v` makes it explicit. Set before the plugins bind their widgets.
+bindkey -v
+
+# Q-3 DECIDED: zsh history file (shared between sessions) + atuin (§8).
+# Sizes/options below are implied by "shared history file" (zsh's stock SAVEHIST=0 saves
+# nothing): 100k entries, timestamps, live sharing, and a leading space keeps a command out.
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+if [[ ! -d ${HISTFILE:h} ]]; then
+  mkdir -p -- ${HISTFILE:h}
+fi
+HISTSIZE=100000
+SAVEHIST=100000
+setopt extended_history share_history hist_ignore_space
+
+# --- 3. plugins via antidote static bundle (D-10/D-11) -------------------------------------
+# antidote itself is a checksum-verified chezmoi external in ~/.local/share/antidote.
+# The static file is regenerated only when ~/.zsh_plugins.txt is newer (antidote README pattern);
+# the first run clones the pinned bundles into ~/.cache/antidote (needs network once).
+# Rebuild is crash-safe (review H-3): antidote writes to a temp file, which replaces the static
+# file only if antidote succeeded AND the result is non-empty AND parses (`zsh -n`). On failure
+# (e.g. offline first start) the last good bundle is kept and the rebuild is retried next shell.
+
+# UQ-2 DECIDED: FSH's secondary theme is copied from the PINNED clone (no download).
+# Called by the bundle (`pre:` in ~/.zsh_plugins.txt) just before FSH loads. FSH only downloads
+# share/free_theme.zsh from its unpinned master branch when secondary_theme.zsh is missing, so
+# seeding it here (same work-dir logic as FSH v1.56 lines 47-61) stops the download for good.
+_fsh_seed_secondary_theme() {
+  local src=${ANTIDOTE_HOME:-${XDG_CACHE_HOME:-$HOME/.cache}/antidote}/github.com/zdharma-continuum/fast-syntax-highlighting/share/free_theme.zsh
+  local dir=${FAST_WORK_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/fast-syntax-highlighting}
+  dir=${~dir}
+  if [[ ! -w $dir ]]; then
+    dir=${XDG_CACHE_HOME:-$HOME/.cache}/fsh
+  fi
+  if [[ ! -e $dir/secondary_theme.zsh && -r $src ]]; then
+    mkdir -p -- $dir && command cp -- $src $dir/secondary_theme.zsh
+  fi
+  return 0
+}
+
+zsh_plugins=${ZDOTDIR:-$HOME}/.zsh_plugins
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
+  (
+    tmp=${zsh_plugins}.zsh.tmp.$$
+    if source "${XDG_DATA_HOME:-$HOME/.local/share}/antidote/antidote.zsh" &&
+       antidote bundle <${zsh_plugins}.txt >|$tmp && [[ -s $tmp ]] && zsh -n $tmp; then
+      command mv -f -- $tmp ${zsh_plugins}.zsh
+    else
+      command rm -f -- $tmp
+      print -ru2 -- "zshrc: antidote bundle failed; plugins not updated (last good bundle kept if any; retried on next shell)"
+    fi
+  )
+fi
+if [[ -r ${zsh_plugins}.zsh ]]; then
+  source ${zsh_plugins}.zsh
+fi
+unset zsh_plugins
+unfunction _fsh_seed_secondary_theme
+
+# --- 3b. glob options — DECIDED (answers batch 2026-10-10 evening) -------------------------
+# belak/zsh-utils' completion plugin does `setopt EXTENDED_GLOB` (it needs it only while it runs
+# compinit, which has already happened above; compsys sets its own options per completion).
+# With EXTENDED_GLOB on, ^ and # are glob operators, which breaks everyday words:
+#   git show HEAD^      grep ^x file      sed s/^#//      curl https://host/page#anchor
+# so turn it back off right after the bundle loads.
+unsetopt extended_glob
+
+# User 2026-10-10: full Gruvbox Material FSH theme (replaces an earlier per-key override that would be
+# ignored once a theme is active). Options orange, args fg, strings yellow, vars blue, commands green bold.
+# FSH theme (ini in ~/.config/fsh, chezmoi-managed). fast-theme compiles it into $FAST_WORK_DIR
+# (a cache); recompile only when the cache is missing or older than the ini. Idempotent.
+() {
+  local ini=${XDG_CONFIG_HOME:-$HOME/.config}/fsh/gruvbox-material.ini
+  if (( $+functions[fast-theme] )) && [[ -r $ini ]] &&
+     [[ ! -e $FAST_WORK_DIR/current_theme.zsh || $ini -nt $FAST_WORK_DIR/current_theme.zsh ]]; then
+    fast-theme -q XDG:gruvbox-material
+  fi
+}
+# no_nomatch: an unmatched glob is passed through literally instead of aborting the command
+# (`echo https://x/?a=1`, `nix build .#pkg`, `scp host:*.log .`). Same behaviour as bash.
+setopt no_nomatch
+
+# D-11 verify: `print $_comps[dnf]` must be _dnf5 (Fedora's dnf is dnf5). Only acts if it isn't.
+if (( $+functions[compdef] )) && [[ ${_comps[dnf]-} != _dnf5 ]] && (( $+functions[_dnf5] || ${+_comps[dnf5]} )); then
+  compdef _dnf5 dnf
+fi
+
+# Forget the cached completion dump (after installing tools that ship new completions).
+alias zcomp-reset='command rm -f -- "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/compdump" && exec zsh'
+
+# --- 4. prompt config (D-13, Q-1 DECIDED: Lean) ---------------------------------------------
+# ~/.p10k.zsh = p10k's shipped config/p10k-lean.zsh at the pinned tag, with nerdfont-v3 and
+# transient prompt "always" (header of that file lists the exact edits).
+if [[ -r ~/.p10k.zsh ]]; then
+  source ~/.p10k.zsh
+fi
+
+# --- 5. command-not-found — DECIDED: drop PackageKit's ("Your answers": typo hook, drop) ---
+# Fedora's /etc/zshrc sources /etc/profile.d/PackageKit.sh, which defines a handler that asks
+# PackageKit over D-Bus (~0.5–2 s) on every typo. Dropped: typos now fail instantly with zsh's
+# own "command not found". To restore the "install package X?" offer, delete these two lines or
+# run: source /etc/profile.d/PackageKit.sh
+# Must run BEFORE `mise activate` (§6): mise wraps an existing handler and installs its own
+# (stock, kept: it only asks the local mise binary whether a configured tool provides the
+# command, then prints zsh's usual "command not found", exit 127). Removing the handler after
+# mise would have dropped mise's too.
+if (( $+functions[command_not_found_handler] )); then unfunction command_not_found_handler; fi
+if (( $+functions[command_not_found_handle] )); then unfunction command_not_found_handle; fi
+
+# --- 6. toolchains (D-24) -------------------------------------------------------------------
+# PATH (~/.local/bin, ~/.cargo/bin, ~/go/bin, ~/.bun/bin, mise shims) is set in ~/.zshenv.
+# Q-10 DECIDED: mise activate in interactive shells (per-project mise.toml + [env]); it puts the
+# real tool dirs ahead of the shims inside this shell. GUI/non-interactive use the shims.
+if (( $+commands[mise] )); then
+  eval "$(mise activate zsh)"
+fi
+
+# --- 7. colours + completion styles ---------------------------------------------------------
+# Track B request: LS_COLORS from vivid (cached) BEFORE any completion colour setup, so a
+# `zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}` (not set — not decided) would see it.
+if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/theme-lscolors.zsh" ]]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/theme-lscolors.zsh"
+fi
+# Q-8 / Q-B24 DECIDED: fzf-tab uses FZF_DEFAULT_OPTS (theme-fzf's --color=base16). Only style.
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
+# --- 8. fzf, then atuin (D-11/D-12) ---------------------------------------------------------
+# Q-9 DECIDED: fd as fzf's file source, hidden files included, .git excluded. Read by fzf at run
+# time. Default (plain `fzf`) = files, like fzf's own walker; Ctrl-T = files + dirs, like stock
+# Ctrl-T; Alt-C = dirs. Only when fd exists (Fedora `fd-find`); otherwise fzf's stock walker.
+if (( $+commands[fd] )); then
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+  export FZF_CTRL_T_COMMAND='fd --hidden --exclude .git'
+  export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+fi
+# Fedora's key-bindings file only (Ctrl-T, Alt-C, Ctrl-R). NOT `fzf --zsh`: its Tab binding
+# fights fzf-tab.
+if [[ -r /usr/share/fzf/shell/key-bindings.zsh ]]; then
+  source /usr/share/fzf/shell/key-bindings.zsh
+fi
+# FZF colours come from Track B's theme file (--color=base16).
+if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/theme-fzf.zsh" ]]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/theme-fzf.zsh"
+fi
+
+# atuin after fzf so atuin owns Ctrl-R; Up arrow stays plain zsh history (D-12).
+# UQ-4 DECIDED: keep atuin's stock extras — ZSH_AUTOSUGGEST_STRATEGY=(atuin history) (atuin
+# first, then zsh history) and vicmd '/' = atuin search.
+if (( $+commands[atuin] )); then
+  eval "$(atuin init zsh --disable-up-arrow)"
+fi
+
+# --- 9. aliases (each only if its tool exists) ----------------------------------------------
+# Q-11 DECIDED: ls/ll -> eza (icons, dirs first; ll long + git status), cat -> bat -pp
+# (plain, no pager). They replace Fedora's colorls `ls`/`ll` aliases. `command ls`/`\cat` = originals.
+if (( $+commands[eza] )); then
+  alias ls='eza --icons --group-directories-first'
+  alias ll='eza --icons --group-directories-first -l --git'
+fi
+if (( $+commands[bat] )); then
+  alias cat='bat -pp'
+fi
+# D-42 / UQ-7 DECIDED: `oc` = opencode with secrets injected by 1Password (env file holds op:// refs).
+if (( $+commands[op] )); then
+  alias oc='op run --env-file ~/.config/opencode/op.env -- opencode'
+fi
+# D-40 / L-Q9 DECIDED: LifeOS session. User 2026-10-11: no launcher banner, so start claude directly with
+# what lifeos.ts -l -s does (cwd kept, LifeOS system prompt, workflows on, ANTHROPIC_API_KEY stripped =
+# subscription billing). Dropped on purpose: the spoken greeting and the main-checkout worktree guard.
+if [[ -f ~/.claude/LIFEOS/LIFEOS_SYSTEM_PROMPT.md ]]; then
+  alias lifeos='env -u ANTHROPIC_API_KEY CLAUDE_CODE_WORKFLOWS=1 claude --append-system-prompt-file ~/.claude/LIFEOS/LIFEOS_SYSTEM_PROMPT.md'
+fi
+
+# --- 10. directory jumping — Q-12 DECIDED: zoxide `z`/`zi`, `cd` untouched --------------------
+# zoxide's docs: init must be at the END of the config (it hooks chpwd/precmd).
+if (( $+commands[zoxide] )); then
+  eval "$(zoxide init zsh)"
+fi
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
+# End of LM Studio CLI section

@@ -1,0 +1,29 @@
+// Package Control 4.x — Track D v3. On startup Package Control installs anything listed here
+// that is missing (install_missing defaults to true). Package Control rewrites this file when you
+// add/remove packages: check `chezmoi diff` afterwards.
+// LSP packages come from the sublimelsp repository (included in the default channel); names checked 2026-10-10.
+{
+	// D-26 + DECIDED (Q-30: LSP-basedpyright replaces LSP-pyright; Q-32: LSP-marksman).
+	// LSP-pyright is no longer listed; Package Control never removes packages, so on a machine that already
+	// has it, remove it with "Package Control: Remove Package" (it would run a second Python server).
+	"installed_packages":
+	[
+		"LSP",
+		"LSP-basedpyright",
+		"LSP-gopls",
+		"LSP-marksman",
+		"LSP-ruff",
+		"LSP-rust-analyzer",
+		"MarkdownEditing",
+		"Package Control",
+		// DECIDED (colors FINAL, 2026-10-10): ayu-dark colour scheme + UI theme (dempfi/ayu, MIT).
+		"ayu",
+	],
+
+	// DECIDED (S-D8): no anonymous install/upgrade/removal stats to packagecontrol.io (stock true).
+	// auto_upgrade stays stock true (S-D7).
+	"submit_usage": false,
+	"in_process_packages":
+	[
+	],
+}

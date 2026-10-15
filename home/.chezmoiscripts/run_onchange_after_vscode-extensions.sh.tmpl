@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Track D (D-27, DECIDED): install VS Code extensions listed in ~/.config/Code/User/extensions.txt.
+# Re-runs when the list changes, or when `code` appears on PATH for the first time:
+#   extensions.txt sha256: {{ include "dot_config/private_Code/User/extensions.txt" | sha256sum }}
+#   code binary: {{ lookPath "code" }}
+# Idempotent: `code --install-extension` exits 0 for already-installed extensions (no --force, so it
+# never upgrades; updates come from extensions.autoUpdate "on" + 72 h delay in settings.json).
+# Additive only: removing a line does not uninstall that extension.
+# DECIDED (Q-27): on failure, warn and exit 0. chezmoi then records this script as run and will not retry it
+# until extensions.txt (or the `code` path) changes. To retry by hand (e.g. after being offline):
+#   chezmoi state delete-bucket --bucket=entryState && chezmoi apply     # re-runs all run_onchange_ scripts
+# or simply:
+#   sed 's/#.*//' ~/.config/Code/User/extensions.txt | xargs -rn1 code --install-extension
+set -euo pipefail
+
+if ! command -v code >/dev/null 2>&1; then
+  echo "vscode-extensions: 'code' not on PATH yet; skipping (re-runs after VS Code is installed)."
+  exit 0
+fi
+
+list="${HOME}/.config/Code/User/extensions.txt"
+if [[ ! -r "$list" ]]; then
+  echo "vscode-extensions: WARNING: $list missing; nothing installed." >&2
+  exit 0
+fi
+
+failed=()
+while IFS= read -r line || [[ -n "$line" ]]; do
+  id="${line%%#*}"
+  id="${id//[[:space:]]/}"
+  [[ -z "$id" ]] && continue
+  if ! code --install-extension "$id"; then
+    failed+=("$id")
+  fi
+done < "$list"
+
+if ((${#failed[@]})); then
+  echo "vscode-extensions: WARNING: failed to install: ${failed[*]}" >&2
+  echo "vscode-extensions: not retried automatically; re-run by hand (see the header of this script)." >&2
+fi
+exit 0

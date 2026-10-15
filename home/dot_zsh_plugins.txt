@@ -1,0 +1,25 @@
+# Managed by chezmoi (~/dev/bootstrap) — D-10/D-11. antidote bundle file (static mode).
+# ORDER MATTERS (D-11). Every bundle is pinned to a full commit SHA (D-10): `antidote update`
+# skips pinned bundles — bump by editing the SHA (docs/plans/10-shell.md §11 "Updating pins").
+# Q-15 DECIDED: pin = the commit of each repo's LATEST RELEASE TAG (looked up 2026-10-10 with
+#   gh api repos/OWNER/REPO/tags --paginate | sort -V). A repo with no tags keeps a HEAD pin.
+
+# 1. prompt — tag v1.20.0 (2024-01-26)
+romkatv/powerlevel10k pin:35833ea15f14b71dbcebc7e54c104d8d56ca5268
+
+# 2. extra completions — fpath only, APPENDED so Fedora/vendor completions (e.g. _dnf5) win
+#    tag 0.36.0 (2026-03-09)
+zsh-users/zsh-completions kind:fpath path:src fpath-rule:append pin:28c5bdcaf81bb89e56d0df8267d822c3b8aed9e0
+
+# 3. compinit runs HERE (-C cache, rebuilt when dump >20h old) so fzf-tab sees it.
+#    belak/zsh-utils has NO tags/releases → HEAD pin kept (main, 2025-10-15).
+belak/zsh-utils path:completion pin:be71275c50506bf2dbedfd21c0fb5adcc5847c92
+
+# 4. must come after compinit, before widget-wrapping plugins — tag v1.3.0 (2026-03-16)
+Aloxaf/fzf-tab pin:d7e0234614dbe5369fdd760907d12c0e05a4dccc
+
+# 5./6. widget wrappers last — tags v0.7.1 / v1.56 (tags only, no GitHub release objects)
+zsh-users/zsh-autosuggestions pin:e52ee8ca55bcc56a17c828767a3f98f22a68d4eb
+# UQ-2 DECIDED: `pre:` runs _fsh_seed_secondary_theme (defined in ~/.zshrc) right before FSH
+# loads; it copies share/free_theme.zsh from THIS pinned clone, so FSH never downloads it.
+zdharma-continuum/fast-syntax-highlighting pin:5ecd353c81214f82bdeca5483fab6ccc5a2d5494 pre:_fsh_seed_secondary_theme

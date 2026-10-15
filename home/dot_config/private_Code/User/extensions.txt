@@ -1,0 +1,19 @@
+# VS Code extensions. One marketplace ID per line; '#' starts a comment.
+# Installed by home/.chezmoiscripts/run_onchange_after_vscode-extensions.sh.tmpl when this file changes.
+# All IDs verified on marketplace.visualstudio.com and open-vsx.org (2026-10-10).
+# D-27: language extensions
+charliermarsh.ruff
+detachhead.basedpyright
+golang.go
+rust-lang.rust-analyzer
+vadimcn.vscode-lldb
+tamasfe.even-better-toml
+DavidAnson.vscode-markdownlint
+# DECIDED (colors FINAL, 2026-10-10): Catppuccin Macchiato theme (3.19.0, MIT; replaces enkia.tokyo-night)
+Catppuccin.catppuccin-vsc
+# DECIDED (Q-22): Python extension (venv picker, debugger). Its extension pack also installs
+# ms-python.vscode-pylance, ms-python.debugpy and ms-python.vscode-python-envs; Pylance stays inactive
+# because python.languageServer is "None". Without it basedpyright crashes on a venv-installed basedpyright
+# (upstream #1188).
+ms-python.python
+# DECIDED (2026-10-10): no vscodevim.vim (no vim keybindings in GUI editors).

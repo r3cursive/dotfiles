@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Rebuild bat's theme/syntax cache so `bat --theme=gruvbox-material-dark` and delta's
+# `syntax-theme = gruvbox-material-dark` resolve. Track B (docs/plans/20-terminal.md v3).
+# run_onchange re-runs this whenever the rendered text below changes:
+#   tmTheme sha256: {{ include "dot_config/bat/themes/gruvbox-material-dark.tmTheme" | sha256sum }}
+#   bat path:       {{ lookPath "bat" | default "absent" }}
+#   bat version:    {{ if lookPath "bat" }}{{ output "bat" "--version" | trim }}{{ else }}absent{{ end }}
+# Review H1: bat refuses to run when ~/.cache/bat was built by another bat version, so the
+# version line makes the next `chezmoi apply` after a bat upgrade rebuild the cache.
+# (Between a `dnf upgrade` of bat and that apply, bat errors — see Risks in the plan.)
+set -euo pipefail
+if ! command -v bat >/dev/null 2>&1; then
+  echo 'bat-theme-cache: bat not installed yet - skipping; the next `chezmoi apply` after installing bat re-runs this' >&2
+  exit 0
+fi
+bat cache --build >/dev/null
+n=$(bat --list-themes --color=never | grep -c '^gruvbox-material-dark$' || true)
+echo "bat-theme-cache: rebuilt (${n} gruvbox-material-dark theme found)"

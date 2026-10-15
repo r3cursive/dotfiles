@@ -1,0 +1,22 @@
+#!/bin/bash
+# Managed by chezmoi (~/dev/bootstrap) — D-14. Rebuild the per-user font cache after the font
+# externals or fontconfig snippets change. No sudo.
+# externals: {{ include ".chezmoiexternal.toml" | sha256sum }}
+# fontconfig: {{ include "dot_config/fontconfig/conf.d/60-maple-mono-nf.conf" | sha256sum }}
+set -euo pipefail
+fonts="${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
+fcconf="${XDG_CONFIG_HOME:-$HOME/.config}/fontconfig"
+# SELinux (enforcing): give newly created dirs/files their policy labels (user_fonts_t,
+# user_fonts_config_t). Own files only, no privileges needed. Each path is relabelled on its own
+# and only if it exists (review L-4: one missing path made the old single call fail, and the
+# fontconfig dir was skipped entirely when the fonts dir was absent). A relabel failure is
+# reported but never stops the apply.
+if command -v restorecon >/dev/null 2>&1; then
+  for p in "$fonts" "$fcconf"; do
+    if [[ -e "$p" ]]; then
+      restorecon -R -- "$p" || echo "10-shell-fonts: restorecon failed on $p (labels unchanged)" >&2
+    fi
+  done
+fi
+[[ -d "$fonts" ]] || exit 0
+fc-cache "$fonts"

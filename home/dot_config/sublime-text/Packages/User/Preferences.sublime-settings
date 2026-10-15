@@ -1,0 +1,23 @@
+// Sublime Text 4 (build 4215) user preferences — Track D v3 (docs/plans/40-editors.md).
+// All values are DECIDED (editors baseline + user answers, 2026-10-10); everything else is stock:
+// Vintage stays in ignored_packages (no vim keybindings), no format on save (LSP lsp_format_on_save stock false),
+// hardware_acceleration stock.
+{
+	// DECIDED (D-14 / "Your answers"): Maple Mono NF, size 11 (Q-41). Ligatures are on by default in ST4.
+	"font_face": "Maple Mono NF",
+	"font_size": 11,
+
+	// DECIDED (colors FINAL, 2026-10-10; 25-colors §11 Q-25.13): Sublime = ayu-dark.
+	// From Package Control package `ayu` (dempfi/ayu v6.2.1, MIT); ST4 resolves a bare file name in any package.
+	// Until Package Control has installed `ayu` on first launch, ST shows a "color scheme not found" error.
+	"color_scheme": "ayu-dark.sublime-color-scheme",
+
+	// DECIDED (Q-34): ayu-dark UI theme (same `ayu` package; file exists at v6.2.1). Set here by hand: do NOT run
+	// "ayu: Activate theme", which rewrites this file (chezmoi drift).
+	"theme": "ayu-dark.sublime-theme",
+	"ignored_packages":
+	[
+		"Vintage",
+	],
+	"index_files": true,
+}

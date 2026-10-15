@@ -1,0 +1,29 @@
+# Managed by chezmoi (~/dev/bootstrap) — D-15, D-24. Read by EVERY zsh (scripts too): keep it tiny,
+# no output, no subprocesses. Plan: docs/plans/10-shell.md (v3).
+
+# XDG base directories (spec defaults, made explicit so tools that ignore the defaults agree).
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+# /etc/profile.d/nano-default-editor.sh only sets EDITOR when it is empty, so this wins.
+# After `chsh` to zsh, the Plasma login shell reads this file too, so GUI apps (and the
+# systemd --user environment) also get these (Q-16: covered here, no extra action).
+export EDITOR=nvim
+# Q-6 DECIDED: VISUAL=nvim, MANPAGER='nvim +Man!' (nvim's built-in man viewer). PAGER stays stock.
+export VISUAL=nvim
+export MANPAGER='nvim +Man!'
+
+# PATH — DECIDED (answers batch 2026-10-10 evening; UQ-6 ~/go/bin; LifeOS L-Q1 ~/.bun/bin):
+# same dirs/order as ~/.config/plasma-workspace/env/10-toolchains.sh (GUI session) and
+# ~/.config/environment.d/10-toolchains.conf (non-Plasma systemd user units).
+# Covers ssh/tty logins and any zsh started outside the Plasma session.
+# typeset -U keeps the first occurrence, so re-sourcing / nested shells never duplicate entries.
+#   ~/go/bin    = `go install` targets (Fedora golang's default GOPATH=~/go)
+#   ~/.bun/bin  = bun from the official installer (LifeOS, L-Q1); ahead of the mise shims
+typeset -U path PATH
+path=("$HOME/.local/bin" "$HOME/.cargo/bin" "$HOME/go/bin" "$HOME/.bun/bin" "$XDG_DATA_HOME/mise/shims" $path)
+# Q-AI-17 answer: LM Studio's `lms` CLI dir, APPENDED (LM Studio's own PATH edit appends it too; pre-adding the
+# same entry here keeps chezmoi and LM Studio in agreement). typeset -U drops a later duplicate.
+path+=("$HOME/.lmstudio/bin")

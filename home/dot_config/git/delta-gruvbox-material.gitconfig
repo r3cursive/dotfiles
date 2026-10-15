@@ -1,0 +1,25 @@
+# delta colours — Gruvbox Material (25-colors §11 FINAL, Q-25.15; Q-B27). Managed by chezmoi (~/dev/bootstrap).
+# Plan: docs/plans/20-terminal.md (v3).
+# Included from ~/.gitconfig via:   [include] path = ~/.config/git/delta-gruvbox-material.gitconfig
+# syntax-theme = the vendored bat theme (molchalin/gruvbox-material-bat, see ~/.config/bat/config);
+# it resolves through bat's cache (`bat cache --build`). If the cache is missing or unreadable,
+# delta silently falls back to its built-in themes — check with V9 in docs/plans/20-terminal.md.
+#
+# Q-B27 answer: Gruvbox Material diff backgrounds. Values from sainnhe/gruvbox-material
+# autoload/gruvbox_material.vim @ 11d779b26a9ab2b3db8c22c6ac9fb6e8ed4fea79 (2026-04-15),
+# palette "hard" + &background "dark" (L45-66), the colours sainnhe's own DiffDelete/DiffAdd use:
+#   bg_diff_red   #3c1f1e  → minus lines
+#   bg_diff_green #32361a  → plus lines
+# Only the backgrounds change; the foreground mode stays delta 0.19.1's stock (minus = "normal",
+# plus = "syntax"). minus/plus-non-emph-style default to minus/plus-style, so they follow.
+# The empty-line markers get the same backgrounds (their stock "auto" would be delta's #3f0001/#002800).
+# minus/plus-emph-style stay delta stock (auto = #901011 / #006000): sainnhe defines no
+# emphasized diff colour (Neovim uses DiffText = blue reverse). See Q-B28 in the plan.
+#
+# Pager wiring (core.pager / interactive.diffFilter) lives in ~/.gitconfig (D-07).
+[delta]
+  syntax-theme = gruvbox-material-dark
+  minus-style = normal "#3c1f1e"
+  plus-style = syntax "#32361a"
+  minus-empty-line-marker-style = normal "#3c1f1e"
+  plus-empty-line-marker-style = normal "#32361a"

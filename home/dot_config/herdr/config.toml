@@ -1,0 +1,65 @@
+# herdr config — managed by chezmoi (~/dev/bootstrap). Plan: docs/plans/20-terminal.md (v3)
+# Target: herdr v0.9.3 (mise, D-21). Keys verified against herdr v0.9.3
+# docs/next/website/src/data/config-reference.json and src/config/theme.rs.
+# Full commented defaults: `herdr --default-config`. Reload: prefix+shift+r or `herdr server reload-config`.
+#
+# Only DECIDED settings are written (all Track B questions answered, v3); stock values that were
+# decided are documented as comments.
+#
+# NOTE: herdr may still rewrite this file itself (Settings UI, `herdr config reset-keys`).
+# chezmoi then shows a diff; resolve with `chezmoi diff` / `chezmoi re-add`.
+
+# Q-B22 answer: skip first-run onboarding via config. Top-level boolean (must stay above the
+# first [table]); config-reference.json "general" section + src/config/io.rs@v0.9.3. Unset/true =
+# show onboarding, which then writes this same line itself and offers integration installs
+# (those are done by hand instead — runbook in 20-terminal.md).
+onboarding = false
+
+[theme]
+# 25-colors §11 FINAL: built-in "gruvbox" base + Gruvbox Material HARD tokens below.
+name = "gruvbox"
+
+[theme.custom]
+# Copied exactly from docs/plans/colors/frame/sainnhe-hard-hybrid.json → herdr.custom
+# (same palette as the Ghostty theme gruvbox-material-hard-fixed). sidebar_bg is not overridden.
+panel_bg = "#1d2021"
+active_row_bg = "#282828"
+selection_bg = "#3c3836"
+surface0 = "#282828"
+surface1 = "#3c3836"
+surface_dim = "#1d2021"
+accent = "#d8a657"
+text = "#d4be98"
+subtext0 = "#ddc7a1"
+overlay0 = "#7c6f64"
+overlay1 = "#928374"
+mauve = "#d3869b"
+green = "#a9b665"
+yellow = "#d8a657"
+red = "#ea6962"
+blue = "#7daea3"
+teal = "#89b482"
+peach = "#e78a4e"
+
+[keys]
+# "Your answers": keep Ctrl-B (also herdr's default; written because it is decided).
+# Pressing the prefix twice forwards a literal Ctrl-B to the pane, so Neovim's <C-b> page-up
+# is <C-b><C-b>.
+prefix = "ctrl+b"
+
+# [terminal] default_shell — Q-B10 answer: stock ("" = $SHELL, then /bin/sh), i.e. zsh once the
+# login shell is set. No [terminal] table is written (nothing in it differs from stock).
+
+[update]
+# Q-B11 answer: herdr is pinned through mise, so the background version check only nags.
+# The agent-detection manifest check stays on (improves detection without a binary update).
+version_check = false
+manifest_check = true
+
+[ui]
+# Q-B23 answer: copy_on_select stock (true) — mouse selections copy via OSC 52 → Ghostty →
+# system clipboard, matching Ghostty's copy-on-select = clipboard.
+
+[ui.toast]
+# Q-B12 answer: agent finished / needs-input notifications via the OS (KDE) notification service.
+delivery = "system"

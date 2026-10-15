@@ -1,0 +1,7 @@
+# lazygit config — managed by chezmoi (~/dev/bootstrap). Plan: docs/plans/20-terminal.md (v3).
+# 25-colors §11 FINAL (Q-25.17): no gui.theme — lazygit's stock theme uses ANSI colours, so it
+# follows Ghostty's gruvbox-material-hard-fixed palette. (The Tokyo Night theme was removed.)
+#
+# Q-B17 answer: file icons on (Nerd Fonts v3 code points; Maple Mono NF has the glyphs).
+gui:
+  nerdFontsVersion: "3"

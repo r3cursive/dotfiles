@@ -1,0 +1,9 @@
+# bat config — managed by chezmoi (~/dev/bootstrap). Plan: docs/plans/20-terminal.md (v3).
+# 25-colors §11 FINAL (Q-25.15): molchalin/gruvbox-material-bat, vendored verbatim (unmodified):
+#   ~/.config/bat/themes/gruvbox-material-dark.tmTheme
+#   from molchalin/gruvbox-material-bat@843e67f926bbc4707256f6a8d0d8b819e5006bc1 (2024-06-25)
+#   sha256 fc5b132d7d898d37b8f598283e6a3606b886eece53a63ddb56f1f84db26909d8
+#   MIT, (c) 2024 Andrei Eremeev — license copy: ~/.config/bat/themes/LICENSE-gruvbox-material-bat.txt
+# bat names the theme after the file stem. Needs `bat cache --build` (chezmoi run_onchange script
+# 20-bat-theme-cache does it). delta's syntax-theme uses the same cache.
+--theme="gruvbox-material-dark"

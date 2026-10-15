@@ -1,0 +1,94 @@
+# Ghostty config — managed by chezmoi (~/dev/bootstrap). Plan: docs/plans/20-terminal.md (v3)
+# Target: Ghostty 1.3.1 (COPR scottames, includepkgs=ghostty*), Fedora 44 KDE Plasma 6.7 Wayland.
+# Keys verified against ghostty-org/ghostty@v1.3.1 (22efb0be) src/config/Config.zig. Validate after install:
+#   ghostty +validate-config && ghostty +show-config
+#
+# Only DECIDED settings (docs/decisions.md + 20-terminal.md "User answers" + 25-colors.md §11 FINAL)
+# are written. Stock values are NOT written (review L1) — they are shown commented with "(stock)".
+# All Track B questions are answered (v3); every remaining comment documents a decided stock value.
+
+# --- Theme (25-colors §11 FINAL: custom Gruvbox Material HARD, fixed palette) ------------
+# File: ~/.config/ghostty/themes/gruvbox-material-hard-fixed (exact copy of
+# docs/plans/colors/frame/sainnhe-hard-hybrid.json; bg #1d2021).
+theme = gruvbox-material-hard-fixed
+
+# --- Font (D-14 + answers: Maple Mono NF, unhinted build installed by Track A) -----------
+# fontconfig family verified with fc-scan on MapleMono-NF v7.9: "Maple Mono NF".
+font-family = Maple Mono NF
+# Q-B1 answer: 10.5 pt (GTK multiplies by the KDE scale, 1.7).
+font-size = 10.5
+# Q-B2 answer (b). Tags verified in subframe7536/maple-font@v7.9 source/features/README.md:
+#   calt = ligatures (also on by default) · zero = dotted 0 · cv01 = plain @ $ & % Q => ->
+#   ss01 = countable == === != !== · ss04 = countable __ #__
+font-feature = calt
+font-feature = zero
+font-feature = cv01
+font-feature = ss01
+font-feature = ss04
+
+# --- Cursor (D-20) -----------------------------------------------------------------------
+cursor-style-blink = false
+
+# --- Window (D-20: KDE Breeze server-side titlebars; Q-B4 answer (b)) -------------------
+# With server decorations Ghostty hides its own GTK header bar automatically.
+window-decoration = server
+window-padding-x = 8
+window-padding-y = 6
+window-padding-balance = true
+# background-opacity = 1                       (stock)
+
+# --- Clipboard (Q-B5 answer (b)) ---------------------------------------------------------
+# clipboard = copy every selection to PRIMARY *and* the system clipboard (also lands in Klipper
+# history — secrets you select included). Middle-click paste still uses PRIMARY.
+copy-on-select = clipboard
+# confirm-close-surface = true                 (stock)
+
+# --- Shell integration (D-10, Q-B7 answer (b)) ------------------------------------------
+# shell-integration = detect                   (stock: picks zsh from $SHELL)
+# Listed features are turned ON on top of the stock set (cursor, title, path stay on;
+# parsePackedStruct starts from the defaults). ssh-terminfo stays OFF (it would install
+# Ghostty's terminfo on every host you ssh to).
+shell-integration-features = sudo,ssh-env
+
+# --- Process model -----------------------------------------------------------------------
+# gtk-single-instance = detect                 (stock)
+# linux-cgroup = single-instance               (stock: one transient systemd scope per surface)
+# Q-B8 answer: quit as soon as the last window closes (stock; no quit-after-last-window-closed-delay).
+# Q-B9 answer: no per-surface memory cap (stock; no linux-cgroup-memory-limit).
+
+# --- Working directory -------------------------------------------------------------------
+# Q-B20 answer: stock (working-directory unset) = "home" when launched from a desktop launcher,
+# otherwise inherit; new windows/tabs inherit the focused terminal's cwd.
+
+# --- Start command -----------------------------------------------------------------------
+# Q-B21 answer: herdr is typed by hand in a Ghostty tab (stock; no `command`), so Ghostty's
+# zsh integration (sudo, ssh-env, prompt marks) stays active in the outer shell.
+
+# --- Keybinds (Q-B6 answer (c)) ----------------------------------------------------------
+# Ghostty binds nothing on ctrl+b, so the herdr prefix (Ctrl-B) is untouched.
+# Free ctrl+enter for Claude Code / opencode / Neovim; fullscreen moves to F11.
+keybind = ctrl+enter=unbind
+keybind = f11=toggle_fullscreen
+# Free alt+1..9 (stock goto_tab 1-8 / last_tab; herdr tabs replace them). Stock binds BOTH the
+# physical digit_N key and the unicode N for 1-8, and only unicode 9 for last_tab
+# (Config.zig@v1.3.1 L6777-6833), so both forms are unbound.
+keybind = alt+1=unbind
+keybind = alt+digit_1=unbind
+keybind = alt+2=unbind
+keybind = alt+digit_2=unbind
+keybind = alt+3=unbind
+keybind = alt+digit_3=unbind
+keybind = alt+4=unbind
+keybind = alt+digit_4=unbind
+keybind = alt+5=unbind
+keybind = alt+digit_5=unbind
+keybind = alt+6=unbind
+keybind = alt+digit_6=unbind
+keybind = alt+7=unbind
+keybind = alt+digit_7=unbind
+keybind = alt+8=unbind
+keybind = alt+digit_8=unbind
+keybind = alt+9=unbind
+# Q-B25 answer: free ctrl+shift+enter for apps inside herdr. Stock binds it (physical enter,
+# ctrl+shift) to toggle_split_zoom (Config.zig@v1.3.1 L6846-6850); herdr does the splitting.
+keybind = ctrl+shift+enter=unbind

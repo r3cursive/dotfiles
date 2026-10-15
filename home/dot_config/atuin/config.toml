@@ -1,0 +1,8 @@
+## Managed by chezmoi (~/dev/bootstrap) — D-12. Everything not listed uses atuin's defaults.
+## Security choices S-1/S-2 in docs/plans/10-shell.md.
+
+## D-12: no update check (atuin comes from Fedora; dnf updates it). atuin default: true.
+update_check = false
+
+## D-12: no sync. Nothing is uploaded unless you run `atuin login`/`atuin register`;
+## sync settings are left at their defaults on purpose.
